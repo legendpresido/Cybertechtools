@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CyberHardware | International Tactical Store</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        :root { --neon: #00f2ff; --dark-bg: #05070a; }
+        body { background-color: var(--dark-bg); font-family: 'Inter', sans-serif; color: #e2e8f0; overflow-x: hidden; }
+        .cyber-font { font-family: 'Orbitron', sans-serif; }
+        .glass { background: rgba(15, 23, 42, 0.8); backdrop-filter: blur(12px); border: 1px solid rgba(0, 242, 255, 0.1); }
+        .neon-glow:hover { box-shadow: 0 0 20px rgba(0, 242, 255, 0.3); border-color: var(--neon); transition: 0.3s; }
+        .category-link.active { color: var(--neon); border-left: 3px solid var(--neon); padding-left: 12px; font-weight: bold; }
+        .modal-animate { animation: slideUp 0.3s ease-out; }
+        @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+    </style>
+</head>
+<body>
+
+    <header class="glass sticky top-0 z-50 border-b border-cyan-500/20">
+        <div class="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
+            <div class="flex items-center gap-2 cursor-pointer" onclick="filterByCategory('All')">
+                <div class="w-8 h-8 bg-cyan-500 rounded flex items-center justify-center font-bold text-black cyber-font">CH</div>
+                <h1 class="cyber-font text-xl font-bold tracking-tighter">CYBER<span class="text-cyan-400">HARDWARE</span></h1>
+            </div>
+            <div class="flex-1 max-w-xl mx-8 relative hidden md:block">
+                <input type="text" id="searchInput" onkeyup="filterBySearch()" placeholder="Search tactical gear..." class="w-full bg-slate-900 border border-slate-700 rounded-lg py-2 px-10 outline-none focus:ring-2 focus:ring-cyan-500 text-sm">
+            </div>
+            <div class="text-[10px] cyber-font text-cyan-500 border border-cyan-500/30 px-3 py-1 rounded">INTL NODE: ONLINE</div>
+        </div>
+    </header>
+
+    <div class="max-w-7xl mx-auto px-4 mt-8 flex flex-col md:flex-row gap-8 pb-24">
+        <aside class="w-full md:w-64 space-y-4">
+            <div class="glass p-5 rounded-xl">
+                <h3 class="cyber-font text-[10px] mb-6 text-cyan-400 uppercase tracking-widest">Global Categories</h3>
+                <ul class="space-y-4 text-sm text-slate-400">
+                    <li onclick="filterByCategory('All')" class="category-link active cursor-pointer hover:text-white transition">All Gear</li>
+                    <li onclick="filterByCategory('Penetration')" class="category-link cursor-pointer hover:text-white">Penetration Tools</li>
+                    <li onclick="filterByCategory('Radio')" class="category-link cursor-pointer hover:text-white">SDR & Radio</li>
+                    <li onclick="filterByCategory('Signal')" class="category-link cursor-pointer hover:text-white">Signal Control</li>
+                    <li onclick="filterByCategory('Computing')" class="category-link cursor-pointer hover:text-white">Computing</li>
+                </ul>
+            </div>
+        </aside>
+
+        <main id="productGrid" class="flex-1 grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"></main>
+    </div>
+
+    <div id="checkoutModal" class="fixed inset-0 bg-black/95 z-[200] hidden flex items-center justify-center p-4 backdrop-blur-md">
+        <div class="glass max-w-xl w-full p-6 md:p-8 rounded-2xl border border-cyan-500/50 modal-animate">
+            <div class="flex justify-between items-center mb-6">
+                <div>
+                    <h2 id="checkoutTitle" class="cyber-font text-xl text-white tracking-widest uppercase">SECURE CLEARANCE</h2>
+                    <p id="checkoutSub" class="text-[9px] text-cyan-500 uppercase">International Payment Terminal</p>
+                </div>
+                <button onclick="closeCheckout()" class="text-slate-500 hover:text-white text-3xl">&times;</button>
+            </div>
+            
+            <div class="flex gap-2 mb-6">
+                <button onclick="switchPay('grey')" id="btn-grey" class="flex-1 py-3 border border-cyan-500 bg-cyan-500/10 text-cyan-400 text-[10px] cyber-font rounded">GREY (USD/GBP)</button>
+                <button onclick="switchPay('crypto')" id="btn-crypto" class="flex-1 py-3 border border-slate-700 text-slate-500 text-[10px] cyber-font rounded">USDT (TRC20)</button>
+            </div>
+
+            <div id="greyArea" class="space-y-3">
+                <div class="bg-slate-900/80 p-5 rounded-lg border border-slate-800">
+                    <p class="text-[10px] text-cyan-500 mb-1 uppercase">Bank Details (GREY)</p>
+                    <p class="text-sm text-white font-bold border-b border-slate-800 pb-2 mb-2">Silvergate Bank</p>
+                    <p class="text-[10px] text-slate-500 uppercase">Account Number</p>
+                    <p class="text-sm text-white mb-2">1234567890</p>
+                    <p class="text-[10px] text-slate-500 uppercase">SWIFT / BIC</p>
+                    <p class="text-sm text-white">GSWDUS6LXXX</p>
+                </div>
+            </div>
+
+            <div id="cryptoArea" class="hidden text-center">
+                <div class="bg-slate-900/80 p-5 rounded-lg border border-cyan-900/30">
+                    <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=YOUR_USDT_ADDRESS" class="mx-auto mb-4 border-2 border-cyan-500 rounded p-1">
+                    <code class="text-[9px] text-cyan-400 break-all">T-YourWalletAddressHere_USDT_TRC20</code>
+                </div>
+            </div>
+
+            <div class="mt-6">
+                <label class="block text-[10px] text-slate-500 uppercase mb-2">Upload Transfer Receipt</label>
+                <div class="relative border border-dashed border-slate-700 p-4 rounded text-center hover:border-cyan-500 transition">
+                    <input type="file" id="receiptUpload" onchange="updateFileName()" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer">
+                    <span id="fileStatus" class="text-xs text-slate-400">Attach Screenshot / PDF</span>
+                </div>
+            </div>
+
+            <button onclick="processFinalOrder()" class="w-full mt-6 py-4 bg-cyan-500 text-black font-black uppercase tracking-widest hover:bg-white transition-all">
+                CONFIRM TRANSACTION
+            </button>
+        </div>
+    </div>
+
+    <script>
+        const products = [
+            { name: "Flipper Zero", price: 185, cat: "Penetration", img: "flipper.png", desc: "Multi-tool for pentesting radio, RFID, NFC, and HID." },
+            { name: "Esp32 Marauder", price: 140, cat: "Penetration", img: "marauder.png", desc: "Advanced WiFi/Bluetooth auditing suite." },
+            { name: "WiFi Devboards", price: 44, cat: "Radio", img: "devboards.png", desc: "ESP8266 and ESP32 development collection." },
+            { name: "HackRF One", price: 400, cat: "Radio", img: "hackrf.png", desc: "1MHz to 6GHz SDR peripheral." },
+            { name: "Deauther Watch", price: 146, cat: "Penetration", img: "watch.png", desc: "Wearable WiFi deauthentication tool." },
+            { name: "GPD Win4", price: 880, cat: "Computing", img: "gpd.png", desc: "Pocket Windows/Linux powerhouse." },
+            { name: "24 Band Jammer", price: 1300, cat: "Signal", img: "jammer24.png", desc: "Maximum coverage for total spectral control." },
+            { name: "Hacking Box", price: 1250, cat: "Penetration", img: "box.png", desc: "Complete field-ready tactical bundle." }
+        ];
+
+        let currentPurchase = null;
+
+        function renderProducts(data) {
+            document.getElementById('productGrid').innerHTML = data.map(p => `
+                <div class="glass p-4 rounded-xl neon-glow group">
+                    <div class="relative overflow-hidden rounded-lg bg-black/40 aspect-square flex items-center justify-center mb-4 p-4">
+                        <img src="${p.img}" class="max-h-full object-contain group-hover:scale-110 transition duration-500" onerror="this.src='https://placehold.co/300/1e293b/00f2ff?text=PNG+MISSING'">
+                    </div>
+                    <p class="text-[9px] text-cyan-500 font-bold mb-1 tracking-widest uppercase">${p.cat}</p>
+                    <h3 class="text-sm font-bold truncate text-white">${p.name}</h3>
+                    <p class="text-cyan-400 font-black mt-1">$${p.price.toLocaleString()}</p>
+                    <button onclick="initiateQuickBuy('${p.name}', ${p.price})" class="w-full mt-4 py-3 bg-cyan-500 hover:bg-white text-black text-[10px] font-black rounded transition-all uppercase tracking-widest">
+                        BUY NOW
+                    </button>
+                </div>
+            `).join('');
+        }
+
+        function initiateQuickBuy(name, price) {
+            currentPurchase = { name, price };
+            document.getElementById('checkoutTitle').innerText = name;
+            document.getElementById('checkoutSub').innerText = `Amount Due: $${price.toLocaleString()}`;
+            document.getElementById('checkoutModal').classList.remove('hidden');
+        }
+
+        function closeCheckout() { document.getElementById('checkoutModal').classList.add('hidden'); }
+
+        function switchPay(method) {
+            const grey = document.getElementById('greyArea');
+            const crypto = document.getElementById('cryptoArea');
+            const bG = document.getElementById('btn-grey');
+            const bC = document.getElementById('btn-crypto');
+            if (method === 'grey') {
+                grey.classList.remove('hidden'); crypto.classList.add('hidden');
+                bG.className = "flex-1 py-3 border border-cyan-500 bg-cyan-500/10 text-cyan-400 text-[10px] cyber-font rounded";
+                bC.className = "flex-1 py-3 border border-slate-700 text-slate-500 text-[10px] cyber-font rounded";
+            } else {
+                crypto.classList.remove('hidden'); grey.classList.add('hidden');
+                bC.className = "flex-1 py-3 border border-cyan-500 bg-cyan-500/10 text-cyan-400 text-[10px] cyber-font rounded";
+                bG.className = "flex-1 py-3 border border-slate-700 text-slate-500 text-[10px] cyber-font rounded";
+            }
+        }
+
+        function updateFileName() {
+            const file = document.getElementById('receiptUpload').files[0];
+            if (file) document.getElementById('fileStatus').innerText = "✓ " + file.name;
+        }
+
+        function processFinalOrder() {
+            const file = document.getElementById('receiptUpload').files[0];
+            if (!file) return alert("Please upload your transfer receipt.");
+            alert(`ORDER LOGGED: ${currentPurchase.name}. Our verification team is reviewing the receipt.`);
+            closeCheckout();
+        }
+
+        function filterByCategory(cat) {
+            const filtered = cat === 'All' ? products : products.filter(p => p.cat === cat);
+            renderProducts(filtered);
+            document.querySelectorAll('.category-link').forEach(el => el.classList.toggle('active', el.innerText.includes(cat)));
+        }
+
+        function filterBySearch() {
+            const q = document.getElementById('searchInput').value.toLowerCase();
+            renderProducts(products.filter(p => p.name.toLowerCase().includes(q)));
+        }
+
+        renderProducts(products);
+    </script>
+</body>
+</html>
